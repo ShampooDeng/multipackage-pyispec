@@ -2,12 +2,14 @@ import re
 import os
 
 # ----------------- Global variable -----------------
-PROJECT_NAME = "<Your_Project_name>"
+# PROJECT_NAME = "<Your_Project_name>"
+PROJECT_NAME = "nice"
 
 src_file_paths = [
     ## For examaple:
-    # "./say_hi.py",
-    # "./main.py",
+    "./say_hi.py",
+    "./main.py",
+    "./say_fvck.py"
 ]
 # ----------------- Global variable -----------------
 
@@ -46,7 +48,7 @@ def gather_collect(content: list):
         "        strip=False,\n",
         "        upx=True,\n",
         "        upx_exclude=[],\n",
-        f"        name={PROJECT_NAME},\n",
+        f"        name='{PROJECT_NAME}',\n",
         "    )\n",
     ]
     content_body = ["    " + x for x in content]

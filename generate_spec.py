@@ -2,14 +2,13 @@ import re
 import os
 
 # ----------------- Global variable -----------------
-# PROJECT_NAME = "<Your_Project_name>"
-PROJECT_NAME = "nice"
+PROJECT_NAME = "<Your_Project_name>"
 
 src_file_paths = [
     ## For examaple:
-    "./say_hi.py",
-    "./main.py",
-    "./say_fvck.py"
+    # "./say_hi.py",
+    # "./main.py",
+    # "./say_fvck.py"
 ]
 # ----------------- Global variable -----------------
 

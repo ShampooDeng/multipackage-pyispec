@@ -5,7 +5,7 @@ import os
 PROJECT_NAME = "<Your_Project_name>"
 
 src_file_paths = [
-    ## For examaple:
+    ## For example:
     # "./say_hi.py",
     # "./main.py",
     # "./say_fvck.py"

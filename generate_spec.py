@@ -1,5 +1,6 @@
 import re
 import os
+from pathlib import Path
 
 # ----------------- Global variable -----------------
 PROJECT_NAME = "<Your_Project_name>"
@@ -17,20 +18,22 @@ src_file_paths = [
 def generate_specs(filepaths):
     ret = []
     for file in filepaths:
-        os.system("pyi-makespec " + file)
-        res = re.match("(.*)\.py", file)
-        if res != None:
-            ret.append(res.groups(0)[0])
-    ret = [x + ".spec" for x in ret]
+        p = Path(file)
+        # generate spec file
+        os.system("pyi-makespec " + f"-n temp_{p.stem} " + file)
+        ret.append(f"temp_{p.stem}")
+    # gather path of generated spec file in current working dir
+    ret = [os.path.join("./"+x+".spec") for x in ret]
     return ret
 
 
 def extract_filename(file_path):
-    res = re.match(".*/(.*)\.spec", file_path)
-    if res == None:
-        return None
-    return res.groups(0)[0] + "_"
-
+    # res = re.match(".*/(.*)\.spec", file_path)
+    # if res == None:
+    #     return None
+    # return res.groups(0)[0] + "_"
+    p = Path(file_path)
+    return p.stem
 
 def replace_word(line: str, head_index: int, tail_index: int, body: str):
     head = line[:head_index]
@@ -61,6 +64,8 @@ if __name__ == "__main__":
     if len(src_file_paths) == 0:
         raise Exception("src_file_paths is empty")
 
+    print("-----generating spec files-----")
+
     spec_file_paths = generate_specs(src_file_paths)
     contents = []
     collect_content = []
@@ -68,6 +73,8 @@ if __name__ == "__main__":
     # --------- main loop ----------
     for filepath in spec_file_paths:
         filename = extract_filename(filepath)
+
+        print(f"reading {filename}")
 
         collect_content_pos = []
         with open(filepath, mode="r") as file:
@@ -115,4 +122,5 @@ if __name__ == "__main__":
         file.writelines(gather_collect(collect_content))
 
     for file in spec_file_paths:
+        print(f"delete temp file: {file}")
         os.remove(file)

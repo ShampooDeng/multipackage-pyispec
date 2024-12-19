@@ -23,7 +23,7 @@ def generate_specs(filepaths):
         os.system("pyi-makespec " + f"-n temp_{p.stem} " + file)
         ret.append(f"temp_{p.stem}")
     # gather path of generated spec file in current working dir
-    ret = [os.path.join("./"+x+".spec") for x in ret]
+    ret = [os.path.join("./" + x + ".spec") for x in ret]
     return ret
 
 
@@ -34,6 +34,7 @@ def extract_filename(file_path):
     # return res.groups(0)[0] + "_"
     p = Path(file_path)
     return p.stem
+
 
 def replace_word(line: str, head_index: int, tail_index: int, body: str):
     head = line[:head_index]
@@ -55,6 +56,8 @@ def gather_collect(content: list):
     ]
     content_body = ["    " + x for x in content]
     return content_head + content_body + content_tail
+
+
 # ----------------- end of helper function -----------------
 
 
@@ -67,7 +70,9 @@ if __name__ == "__main__":
     print("-----generating spec files-----")
 
     spec_file_paths = generate_specs(src_file_paths)
+    # normal build spec content, like a, pyz, exe.
     contents = []
+    # contents that's inside COLECT()
     collect_content = []
 
     # --------- main loop ----------
@@ -82,37 +87,36 @@ if __name__ == "__main__":
                 raise BufferError(f"{filepath} is not readable")
 
             lines = file.readlines()
-            # I assume the total length of all the
-            # spec files would exceed 65535.
-            stop_marker = 65535
+            collect_content_marker = 65535 # marker of the COLLECT() line
             for i in range(len(lines)):
+                # I assume the total line number of all the spec files would not exceed 65535.
                 if i > 65535:
                     raise OverflowError("The spec files are too big!")
-
                 if (res := re.search("^a", lines[i])) != None:
                     head_mark, tail_mark = res.span()
                     lines[i] = replace_word(lines[i], head_mark, tail_mark, filename)
-                    if i > stop_marker and (i not in collect_content_pos):
+                    if i > collect_content_marker and (i not in collect_content_pos):
                         collect_content_pos.append(i)
                 if (res := re.search("pyz", lines[i])) != None:
                     head_mark, tail_mark = res.span()
                     lines[i] = replace_word(lines[i], head_mark, tail_mark, filename)
-                    if i > stop_marker and (i not in collect_content_pos):
+                    if i > collect_content_marker and (i not in collect_content_pos):
                         collect_content_pos.append(i)
                 if (res := re.search("exe", lines[i])) != None:
                     head_mark, tail_mark = res.span()
                     lines[i] = replace_word(lines[i], head_mark, tail_mark, filename)
-                    if i > stop_marker and (i not in collect_content_pos):
+                    if i > collect_content_marker and (i not in collect_content_pos):
                         collect_content_pos.append(i)
                 if (res := re.search("a\.", lines[i])) != None:
                     head_mark, tail_mark = res.span()
                     lines[i] = replace_word(lines[i], head_mark, tail_mark, filename)
-                    if i > stop_marker and (i not in collect_content_pos):
+                    if i > collect_content_marker and (i not in collect_content_pos):
                         collect_content_pos.append(i)
                 if (res := re.search("COLLECT", lines[i])) != None:
-                    stop_marker = i
+                    collect_content_marker = i
+
             # 1 here means dropping the first line of each spec files
-            contents.append(lines[1:stop_marker])
+            contents.append(lines[1:collect_content_marker])
             collect_content.extend([lines[pos] for pos in collect_content_pos])
 
     with open(f"./{PROJECT_NAME}.spec", mode="w") as file:
